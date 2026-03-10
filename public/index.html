@@ -23,7 +23,11 @@
         </div>
     </div>
 </div>
-
+<script>
+if(!localStorage.getItem("username")){
+    window.location.href = "login.html";
+}
+</script>
 <script src="script.js"></script>
 </body>
 </html>

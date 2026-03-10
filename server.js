@@ -3,10 +3,12 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
 const path = require("path");
+const cors = require("cors");
 
 dotenv.config();
 
 const app = express();
+app.use(cors());
 
 app.use(express.json());
 app.use(express.static("public"));

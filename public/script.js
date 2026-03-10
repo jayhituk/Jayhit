@@ -1,4 +1,3 @@
-// ---------- ELEMENTS ----------
 const inputBox = document.getElementById("input-box");
 const listContainer = document.getElementById("list-container");
 
@@ -13,26 +12,20 @@ async function register() {
         return;
     }
 
-    try {
-        const res = await fetch("https://jayhit-backend.onrender.com/register", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ username, password })
-        });
+    const res = await fetch("https://jayhit-backend.onrender.com/register", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, password })
+    });
 
-        const data = await res.json();
+    const data = await res.json();
 
-        alert(data.message);
+    alert(data.message);
 
-        if (data.message === "User Registered") {
-            window.location.href = "login.html";
-        }
-
-    } catch (error) {
-        alert("Server error");
-        console.log(error);
+    if (data.message === "User Registered") {
+        window.location.href = "login.html";
     }
 }
 
@@ -47,33 +40,29 @@ async function login() {
         return;
     }
 
-    try {
-        const res = await fetch("https://jayhit-backend.onrender.com/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ username, password })
-        });
+    const res = await fetch("https://jayhit-backend.onrender.com/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, password })
+    });
 
-        const data = await res.json();
+    const data = await res.json();
 
-        alert(data.message);
+    alert(data.message);
 
-        if (data.message === "Login Success") {
-            localStorage.setItem("username", username);
-            window.location.href = "index.html";
-        }
-
-    } catch (error) {
-        alert("Server error");
-        console.log(error);
+    if (data.message === "Login Success") {
+        localStorage.setItem("username", username);
+        window.location.href = "index.html";
     }
 }
 
 
 // ---------- ADD TASK ----------
 async function addTask() {
+    if (!inputBox) return;
+
     const task = inputBox.value.trim();
     const username = localStorage.getItem("username");
 
@@ -82,26 +71,21 @@ async function addTask() {
         return;
     }
 
-    try {
-        const res = await fetch("https://jayhit-backend.onrender.com/add-task", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ username, task })
-        });
+    const res = await fetch("https://jayhit-backend.onrender.com/add-task", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, task })
+    });
 
-        const data = await res.json();
+    const data = await res.json();
 
-        alert(data.message);
+    alert(data.message);
 
-        inputBox.value = "";
+    inputBox.value = "";
 
-        loadTasks();
-
-    } catch (error) {
-        console.log(error);
-    }
+    loadTasks();
 }
 
 
@@ -111,82 +95,67 @@ async function loadTasks() {
 
     if (!username || !listContainer) return;
 
-    try {
-        const res = await fetch("https://jayhit-backend.onrender.com/get-tasks", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ username })
-        });
+    const res = await fetch("https://jayhit-backend.onrender.com/get-tasks", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username })
+    });
 
-        const tasks = await res.json();
+    const tasks = await res.json();
 
-        listContainer.innerHTML = "";
+    listContainer.innerHTML = "";
 
-        tasks.forEach(task => {
-            let li = document.createElement("li");
-            li.innerHTML = task.task;
+    tasks.forEach(task => {
+        let li = document.createElement("li");
+        li.innerHTML = task.task;
 
-            if (task.completed) {
-                li.classList.add("checked");
-            }
+        if (task.completed) {
+            li.classList.add("checked");
+        }
 
-            li.onclick = () => toggleTask(task._id);
+        li.onclick = () => toggleTask(task._id);
 
-            let span = document.createElement("span");
-            span.innerHTML = "\u00d7";
+        let span = document.createElement("span");
+        span.innerHTML = "\u00d7";
 
-            span.onclick = (e) => {
-                e.stopPropagation();
-                deleteTask(task._id);
-            };
+        span.onclick = (e) => {
+            e.stopPropagation();
+            deleteTask(task._id);
+        };
 
-            li.appendChild(span);
-            listContainer.appendChild(li);
-        });
-
-    } catch (error) {
-        console.log(error);
-    }
+        li.appendChild(span);
+        listContainer.appendChild(li);
+    });
 }
 
 
 // ---------- DELETE TASK ----------
 async function deleteTask(id) {
-    try {
-        await fetch("https://jayhit-backend.onrender.com/delete-task", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ id })
-        });
+    await fetch("https://jayhit-backend.onrender.com/delete-task", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id })
+    });
 
-        loadTasks();
-
-    } catch (error) {
-        console.log(error);
-    }
+    loadTasks();
 }
 
 
 // ---------- TOGGLE TASK ----------
 async function toggleTask(id) {
-    try {
-        await fetch("https://jayhit-backend.onrender.com/toggle-task", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ id })
-        });
+    await fetch("https://jayhit-backend.onrender.com/toggle-task", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id })
+    });
 
-        loadTasks();
-
-    } catch (error) {
-        console.log(error);
-    }
+    loadTasks();
 }
 
 

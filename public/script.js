@@ -11,20 +11,26 @@ async function register() {
         return;
     }
 
-    const res = await fetch("/register", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ username, password })
-    });
+    try {
+        const res = await fetch("https://jayhit-backend.onrender.com/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username, password })
+        });
 
-    const data = await res.json();
+        const data = await res.json();
 
-    alert(data.message);
+        alert(data.message);
 
-    if (data.message === "User Registered") {
-        window.location.href = "login.html";
+        if (data.message === "User Registered") {
+            window.location.href = "login.html";
+        }
+
+    } catch (error) {
+        alert("Server error");
+        console.log(error);
     }
 }
 
@@ -37,20 +43,26 @@ async function login() {
         return;
     }
 
-    const res = await fetch("/login", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ username, password })
-    });
+    try {
+        const res = await fetch("https://jayhit-backend.onrender.com/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username, password })
+        });
 
-    const data = await res.json();
+        const data = await res.json();
 
-    alert(data.message);
+        alert(data.message);
 
-    if (data.message === "Login Success") {
-        window.location.href = "index.html";
+        if (data.message === "Login Success") {
+            window.location.href = "index.html";
+        }
+
+    } catch (error) {
+        alert("Server error");
+        console.log(error);
     }
 }
 

@@ -17,10 +17,16 @@ mongoose.connect(process.env.MONGO_URI)
 .then(()=> console.log("MongoDB Connected"))
 .catch(err => console.log(err));
 
-const UserSchema = new mongoose.Schema({
-    username:String,
-    password:String
+const TodoSchema = new mongoose.Schema({
+    username: String,
+    task: String,
+    completed: {
+        type: Boolean,
+        default: false
+    }
 });
+
+const Todo = mongoose.model("Todo", TodoSchema);
 
 const User = mongoose.model("User", UserSchema);
 
@@ -69,6 +75,32 @@ app.post("/login", async(req,res)=>{
     }
 });
 
+app.post("/add-task", async (req, res) => {
+    const { username, task } = req.body;
+
+    const newTask = new Todo({
+        username,
+        task
+    });
+
+    await newTask.save();
+
+    res.json({ message: "Task Added" });
+});
+app.post("/get-tasks", async (req, res) => {
+    const { username } = req.body;
+
+    const tasks = await Todo.find({ username });
+
+    res.json(tasks);
+});
+app.post("/delete-task", async (req, res) => {
+    const { id } = req.body;
+
+    await Todo.findByIdAndDelete(id);
+
+    res.json({ message: "Task Deleted" });
+});
 app.listen(process.env.PORT, ()=>{
     console.log(`Server running ${process.env.PORT}`);
 });

@@ -1,7 +1,9 @@
-// console.log("NEW SCRIPT LOADED");
+// ---------- ELEMENTS ----------
 const inputBox = document.getElementById("input-box");
 const listContainer = document.getElementById("list-container");
 
+
+// ---------- REGISTER ----------
 async function register() {
     const username = document.getElementById("reg-user")?.value.trim();
     const password = document.getElementById("reg-pass")?.value.trim();
@@ -34,6 +36,8 @@ async function register() {
     }
 }
 
+
+// ---------- LOGIN ----------
 async function login() {
     const username = document.getElementById("login-user")?.value.trim();
     const password = document.getElementById("login-pass")?.value.trim();
@@ -57,6 +61,7 @@ async function login() {
         alert(data.message);
 
         if (data.message === "Login Success") {
+            localStorage.setItem("username", username);
             window.location.href = "index.html";
         }
 
@@ -66,50 +71,131 @@ async function login() {
     }
 }
 
-function addTask() {
-    if (!inputBox || inputBox.value.trim() === "") {
+
+// ---------- ADD TASK ----------
+async function addTask() {
+    const task = inputBox.value.trim();
+    const username = localStorage.getItem("username");
+
+    if (!task) {
         alert("Write something");
         return;
     }
 
-    let li = document.createElement("li");
-    li.innerHTML = inputBox.value;
-    listContainer.appendChild(li);
+    try {
+        const res = await fetch("https://jayhit-backend.onrender.com/add-task", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username, task })
+        });
 
-    let span = document.createElement("span");
-    span.innerHTML = "\u00d7";
-    li.appendChild(span);
+        const data = await res.json();
 
-    inputBox.value = "";
-    saveData();
-}
+        alert(data.message);
 
-if (listContainer) {
-    listContainer.addEventListener("click", function (e) {
-        if (e.target.tagName === "LI") {
-            e.target.classList.toggle("checked");
-            saveData();
-        } else if (e.target.tagName === "SPAN") {
-            e.target.parentElement.remove();
-            saveData();
-        }
-    });
-}
+        inputBox.value = "";
 
-function saveData() {
-    if (listContainer) {
-        localStorage.setItem("data", listContainer.innerHTML);
+        loadTasks();
+
+    } catch (error) {
+        console.log(error);
     }
 }
 
-function showTask() {
-    if (listContainer) {
-        listContainer.innerHTML = localStorage.getItem("data") || "";
+
+// ---------- LOAD TASKS ----------
+async function loadTasks() {
+    const username = localStorage.getItem("username");
+
+    if (!username || !listContainer) return;
+
+    try {
+        const res = await fetch("https://jayhit-backend.onrender.com/get-tasks", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username })
+        });
+
+        const tasks = await res.json();
+
+        listContainer.innerHTML = "";
+
+        tasks.forEach(task => {
+            let li = document.createElement("li");
+            li.innerHTML = task.task;
+
+            if (task.completed) {
+                li.classList.add("checked");
+            }
+
+            li.onclick = () => toggleTask(task._id);
+
+            let span = document.createElement("span");
+            span.innerHTML = "\u00d7";
+
+            span.onclick = (e) => {
+                e.stopPropagation();
+                deleteTask(task._id);
+            };
+
+            li.appendChild(span);
+            listContainer.appendChild(li);
+        });
+
+    } catch (error) {
+        console.log(error);
     }
 }
 
+
+// ---------- DELETE TASK ----------
+async function deleteTask(id) {
+    try {
+        await fetch("https://jayhit-backend.onrender.com/delete-task", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ id })
+        });
+
+        loadTasks();
+
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
+// ---------- TOGGLE TASK ----------
+async function toggleTask(id) {
+    try {
+        await fetch("https://jayhit-backend.onrender.com/toggle-task", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ id })
+        });
+
+        loadTasks();
+
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
+// ---------- LOGOUT ----------
 function logout() {
+    localStorage.removeItem("username");
     window.location.href = "login.html";
 }
 
-showTask();
+
+// ---------- AUTO LOAD ----------
+loadTasks();
